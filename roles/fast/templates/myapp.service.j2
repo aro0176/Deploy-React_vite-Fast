@@ -1,0 +1,13 @@
+[Unit]
+Description=My FastAPI App Uvicorn Service
+After=network.target
+
+[Service]
+User={{ utilisateur }}
+Group={{ utilisateur }}
+WorkingDirectory={{ Dossier_back }}
+ExecStart={{ Dossier_back }}/venv/bin/uvicorn main:app --host 127.0.0.1 --port {{ port }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

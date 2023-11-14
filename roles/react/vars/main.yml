@@ -1,0 +1,10 @@
+---
+ utilisateur: "{{ user }}"
+ domaine_react : "{{ site_name }}"
+ dossier_perso: /home/{{ utilisateur }}/{{ domaine_react }}
+ lien_git_react: "{{ link_git_frontend }}"
+ dossier_www: /var/www/{{ domaine_react }}
+ config_apache: "{{ site_name }}.conf" 
+ chemin_vite: "{{ dossier_perso }}/{{ vite_config_name }}"
+ api_name: "{{ link_api }}"
+...

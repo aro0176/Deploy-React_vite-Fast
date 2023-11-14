@@ -1,0 +1,21 @@
+<VirtualHost *:443>
+     ServerName {{ domaine_react }}.apmf.com
+
+     DocumentRoot {{ dossier_www }}/dist
+
+     <Directory {{ dossier_www }}/dist>
+         Options -Indexes +FollowSymLinks +MultiViews
+         AllowOverride All
+         Require all granted
+     </Directory>
+
+     ErrorLog ${APACHE_LOG_DIR}/frontend_error.log
+     CustomLog ${APACHE_LOG_DIR}/frontend_access.log combined
+
+     FallbackResource /index.html
+
+
+     SSLEngine on
+     SSLCertificateFile /etc/ssl/certs/{{ certssl }}
+     SSLCertificateKeyFile /etc/ssl/certs/{{ keyssl }}
+</VirtualHost>

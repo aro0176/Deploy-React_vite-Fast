@@ -1,0 +1,44 @@
+---
+ - name: Installation apache
+   become: yes
+   apt:
+     name: apache2
+     update_cache: yes
+
+ - name: Active service apache
+   become: yes
+   service:
+     name: apache2
+     enabled: yes
+   notify: start apache
+
+ - name: Installation Python version récent
+   become: yes
+   apt: 
+     name: python3 
+     state: present
+
+ - name: Mise à jour Python
+   become: yes
+   apt: 
+     name: python3
+     state: latest
+
+ - name: Installation gestion paquets
+   become: yes
+   apt:
+     name: python3-pip
+     state: latest
+
+ - name: Installation des autres paquets
+   become: yes
+   apt:
+     name:
+       - python3-venv 
+       - python3-dev
+       - libssl-dev
+       - libffi-dev
+
+ - name: Configuration Backend 
+   include: backend.yml
+... 

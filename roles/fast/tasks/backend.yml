@@ -1,0 +1,124 @@
+---
+ - name: Création Dossier Backend
+   become: yes
+   file:
+     path: "{{ Dossier_backs }}"
+     state: directory
+     owner: "{{ utilisateur }}"
+     group: "{{ utilisateur }}"
+     mode: 0755
+
+ - become: yes
+   file:
+     path: "{{ Dossier_backend }}"
+     state: directory
+     owner: "{{ utilisateur }}"
+     group: "{{ utilisateur }}"
+     mode: 0755
+
+ - name: Clonez l'API backend
+   git:
+     repo: "{{ lien_git }}"
+     dest: "{{ Dossier_backs }}"
+
+ - name: Déplacer les fichiers 
+   shell: "cp -vfr {{ Dossier_backs }} {{ Dossier_backend }}"
+   args:
+     executable: /bin/bash
+
+ - file:
+     path: "{{ Dossier_backs }}"
+     state: absent
+
+ - name: Création environnement
+   shell: python3 -m venv "{{ Dossier_back }}/venv"
+   args:
+     chdir: "{{ Dossier_back }}"
+
+ - name: Modifier le repertoire environnement
+   become: yes
+   shell: "chmod -R a+rwX {{ Dossier_back }}/venv"
+   args:
+     chdir: "{{ Dossier_back }}"
+     
+ - become: yes
+   shell: "chmod +x {{ Dossier_back }}/*"
+   args:
+     chdir: "{{ Dossier_back }}"
+
+ - name: Activation environnement et installation dependance
+   shell: . {{ Dossier_back }}/venv/bin/activate && pip3 install -r requirements.txt
+   args:
+     chdir: "{{ Dossier_back }}"
+
+ - name: Configuration Postgresql connection
+   lineinfile:
+     path: "{{ chemin_py }}"
+     regexp: "^SQLALCHEMY_DATABASE_URL"
+     line: "SQLALCHEMY_DATABASE_URL = 'postgresql://{{ user_data }}:{{ mdp_data }}@{{ addr_data }}:5432/{{ table_data }}'"
+
+ - name: Création Service
+   become: yes
+   template:
+     src: myapp.service.j2
+     dest: /etc/systemd/system/{{ config_service }}
+
+ - name: Redémarrer daemon
+   become: yes
+   command: systemctl daemon-reload
+   become_method: sudo
+
+ - name: Activation service
+   become: yes
+   shell: systemctl enable {{ config_service }}
+
+ - name: " Start service {{ config_service }}"
+   become: yes
+   service:
+     name: "{{ config_service }}"
+     state: started
+   notify: restart Service
+
+############ Below are the ssl configuration steps ################
+ - name: Copier Private key SSL
+   become: yes
+   copy:
+     src: "/var/lib/jenkins/Openssl/{{ keyssl }}"
+     dest: /etc/ssl/certs/
+
+ - name: Copier Certificat key SSL
+   become: yes
+   copy:
+      src: "/var/lib/jenkins/Openssl/{{ certssl }}"
+      dest: /etc/ssl/certs/
+
+ - name: Activer le site web avec SSL
+   command: a2enmod ssl
+   become: yes
+
+ - shell: a2ensite default-ssl
+   become: yes
+   notify: restart Apache
+############ above is the ssl configuration step ################
+
+ - name: Configuration Virtual Host pour FatsApi
+   become: yes
+   template:
+     src: deployFastSsl.conf.j2
+     dest: /etc/apache2/sites-available/{{ config_apache }}
+ 
+ - name: Active module proxy
+   become: yes
+   command: a2enmod proxy
+
+ - name: Active module proxy http
+   become: yes
+   command: a2enmod proxy_http
+
+ - name: Active virtuel host
+   become: yes
+   command: "a2ensite {{ config_apache }}"
+   args:
+     warn: no
+   notify: restart Apache
+...

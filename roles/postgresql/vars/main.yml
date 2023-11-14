@@ -1,0 +1,5 @@
+---
+ database_name: "{{ table_data }}"
+ database_user: "{{  user_data }}"
+ database_password: "{{ mdp_data }}"
+...

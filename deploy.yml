@@ -1,0 +1,22 @@
+--- 
+ - name: Mettre en place la base de donnée
+   hosts: database
+   remote_user: "{{ user }}"
+  
+   roles:
+     - postgresql
+
+ - name: Mettre en place la base de donnée
+   hosts: backend
+   remote_user: "{{ user }}"
+
+   roles:
+     - fast
+
+ - name: Mettre en place la base de donnée
+   hosts: frontend
+   remote_user: "{{ user }}"
+
+   roles:
+     - react
+...

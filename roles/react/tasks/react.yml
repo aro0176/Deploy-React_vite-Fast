@@ -1,0 +1,96 @@
+---
+ - name: Création Dossier pour l'application
+   file:
+     path: "{{ dossier_perso }}"
+     state: directory
+     owner: "{{ utilisateur }}"
+     group: "{{ utilisateur }}"
+     mode: 0755
+
+ - name: Création Dossier dans WWW
+   become: yes
+   file:
+     path: "{{ dossier_www }}"
+     state: directory
+     owner: "{{ utilisateur }}"
+     group: "{{ utilisateur }}"
+     mode: 0755
+
+ - name: Clone l'application ReactJS
+   git:
+     repo: "{{ lien_git_react }}"
+     dest: "{{ dossier_perso }}"
+
+ - name: Installation dependances ReactJS
+   shell: export NODE_OPTIONS="--max-old-space-size=8000" && npm install
+   args:
+     chdir: "{{ dossier_perso }}"
+
+ - name: Ajouter l'API back dans fichier vite
+   lineinfile:
+     path: "{{ chemin_vite }}"
+     regexp: "^\\s*target:.*"
+     line: '        target: "{{ api_name }}",'
+
+ - name: Build application ReactJS
+   shell: export NODE_OPTIONS="--max-old-space-size=8000" && npm run build
+   args:
+     chdir: "{{ dossier_perso }}"
+
+ - name: Copie build dans le www
+   copy: 
+     src: "{{ dossier_perso }}/dist"
+     dest: "{{ dossier_www }}"
+     remote_src: yes
+
+############ Below are the ssl configuration steps ################
+ - name: Copier Private key SSL
+   become: yes
+   copy:
+     src: "/var/lib/jenkins/Openssl/{{ keyssl }}"
+     dest: /etc/ssl/certs/
+
+ - name: Copier Certificat key SSL
+   become: yes
+   copy:
+      src: "/var/lib/jenkins/Openssl/{{ certssl }}"
+      dest: /etc/ssl/certs/
+   notify: restart apache
+ 
+ - name: Activer le site web avec SSL
+   command: a2enmod ssl
+   become: yes
+
+ - shell: a2ensite default-ssl
+   become: yes
+   notify: restart apache
+############ above is the ssl configuration step ################
+ 
+ - name: Configuration Apache
+   become: yes
+   template:
+     src: deployReactSsl.conf.j2
+     dest: /etc/apache2/sites-available/{{ config_apache }}
+   notify: restart apache  
+
+ - become: yes
+   command: a2enmod rewrite
+ 
+ - name: personnalisations spécifiques du react
+   template:
+     src: htaccess.j2
+     dest: "{{ dossier_www }}/dist/.htaccess"
+   notify: restart apache
+
+ - name: supprimer l'ancien dossier 
+   file:
+     path: "{{ dossier_perso }}"
+     state: absent
+
+ - name: Activer le site apache
+   become: yes
+   shell: "a2ensite {{ config_apache }}"
+   args:
+     warn: no
+   notify: restart apache
+...

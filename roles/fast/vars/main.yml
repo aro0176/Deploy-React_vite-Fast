@@ -1,0 +1,13 @@
+---
+ domaine_api: "{{ api_name }}"
+ utilisateur: "{{ user }}"
+ Dossier_backend: /home/{{ utilisateur }}/Public
+ Dossier_backs: /home/{{ utilisateur }}/{{ domaine_api }}
+ Dossier_back: "{{ Dossier_backend  }}/{{ domaine_api }}"
+ lien_git: "{{ link_git_backend }}"
+ port: "{{ Port_api }}"
+ config_service: "{{ api_name }}.service"
+ config_apache: "{{ api_name }}.conf"
+ chemin_py: "{{ Dossier_back }}/{{ connexion_db_py }}"
+
+...

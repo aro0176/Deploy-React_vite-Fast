@@ -1,0 +1,44 @@
+---
+ - name: Installation PostgreSQL
+   become: yes
+   apt: 
+     name: postgresql
+     state: present
+   ignore_errors: yes
+ 
+ - name: Active le service postgresql
+   become: yes
+   service:
+     name: postgresql
+     enabled: yes
+   notify: start Postgres
+
+ - name: Create a PostgreSQL database
+   become: yes
+   become_user: postgres
+   command: >
+     psql -c "CREATE DATABASE {{ database_name }}"
+   ignore_errors: yes
+
+ - name: Create a PostgreSQL user
+   become: yes
+   become_user: postgres
+   command: >
+     psql -c "CREATE USER {{ database_user }} WITH PASSWORD '{{ database_password }}'"
+   ignore_errors: yes
+
+ - name: Grant privileges to PostgreSQL user
+   become: yes
+   become_user: postgres
+   command: >
+     psql -c "GRANT ALL PRIVILEGES ON DATABASE {{ database_name }} TO {{ database_user }}"
+   ignore_errors: yes
+
+ - name: Alert database owner to user
+   become: yes
+   become_user: postgres
+   command: >
+     psql -c "ALTER DATABASE {{ database_name }} OWNER TO {{ database_user }};"
+   ignore_errors: yes
+   notify: restart Postgres
+...
