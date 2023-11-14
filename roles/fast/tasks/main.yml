@@ -12,23 +12,23 @@
      enabled: yes
    notify: start apache
 
- - name: Installation Python version récent
-   become: yes
-   apt: 
-     name: python3 
-     state: present
+# - name: Installation Python version récent
+#   become: yes
+#   apt: 
+#     name: python3 
+#     state: present
 
- - name: Mise à jour Python
-   become: yes
-   apt: 
-     name: python3
-     state: latest
+# - name: Mise à jour Python
+#   become: yes
+#   apt: 
+#     name: python3
+#     state: latest
 
- - name: Installation gestion paquets
-   become: yes
-   apt:
-     name: python3-pip
-     state: latest
+# - name: Installation gestion paquets
+#   become: yes
+#   apt:
+#     name: python3-pip
+#     state: latest
 
  - name: Installation des autres paquets
    become: yes
