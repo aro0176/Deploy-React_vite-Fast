@@ -12,25 +12,25 @@
      enabled: yes
    notify: start apache
 
- - name: Installation curl
-   become: yes
-   apt:
-     name: curl
-     state: present
+# - name: Installation curl
+#   become: yes
+#    apt:
+#     name: curl
+#     state: present
 
- - name: Ajoutez le référentiel nodejs
-   command: curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
+# - name: Ajoutez le référentiel nodejs
+#   command: curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
 
- - name: Exécuter le script d'installation de NodeSource
-   become: yes
-   command: sudo bash /tmp/nodesource_setup.sh
+# - name: Exécuter le script d'installation de NodeSource
+#   become: yes
+#   command: sudo bash /tmp/nodesource_setup.sh
 
- - name: Installation Nodejs
-   become: yes
-   apt:
-     name: nodejs
-     state: latest
-   ignore_errors: yes
+# - name: Installation Nodejs
+#   become: yes
+#   apt:
+#     name: nodejs
+#     state: latest
+#   ignore_errors: yes
 
  - name: Configuration l'application et serveur
    include: react.yml
